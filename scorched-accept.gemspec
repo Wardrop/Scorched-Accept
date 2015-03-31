@@ -15,5 +15,5 @@ Gem::Specification.new 'scorched-accept', '0.1' do |s|
 
   s.add_dependency 'parslet', '~> 1.7'
   s.add_development_dependency 'rack-test', '~> 0.6'
-  s.add_development_dependency 'maxitest'
+  s.add_development_dependency 'maxitest', '~>1.4'
 end
