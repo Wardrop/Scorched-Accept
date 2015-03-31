@@ -6,6 +6,7 @@ module Scorched
       let_all :long_header do
         '*/*, text/html;level=3,video/webm;codecs=vp8;videoonly=1, text/*, video/*;q=0.4, application/json, text/plain'
       end
+
       let_all :short_header do
         'text/*;encoding=utf-8;q=1;speed=high, video/mpeg'
       end
@@ -45,8 +46,11 @@ module Scorched
 
       it "selects the most appropriate media type out of an array" do
         header_accept.best_of('text/plain', 'text/html').must_equal 'text/html'
-        header_accept.best_of('video/mpeg', 'large/horse').must_equal 'large/horse'
+        header_accept.best_of('video/mpeg', 'text/x-markdown', 'cat/meow').must_equal 'text/x-markdown'
         HeaderAccept.new(short_header).rank('video/mp4').must_equal nil
+
+        # Uses the order of arguments if the provided arguments are equally acceptable.
+        header_accept.best_of('dog/roof', 'cat/meow').must_equal 'dog/roof'
       end
 
       it "can return a hash" do
@@ -59,6 +63,10 @@ module Scorched
       it "is enumerable" do
         HeaderAccept.include?(Enumerable).must_equal true
         header_accept.map { |v| v[:media_type] }[-2].must_equal long_header_ordered[-2]
+      end
+
+      it "tells you how many media ranges were parsed" do
+        header_accept.length.must_equal long_header_ordered.length
       end
     end
   end

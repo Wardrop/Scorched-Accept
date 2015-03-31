@@ -29,7 +29,7 @@ module Scorched
       # are of equal appropriatness, or multiple media types are equal best, the media type that was listed highest in
       # argument list is returned.
       def best_of(*media_types)
-        media_types.max { |m| rank(m) }
+        media_types.min_by { |m| rank(m) }
       end
 
       # Returns a hash with each media range as the key, and the rest of the attributes as the value.
