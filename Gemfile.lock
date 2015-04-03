@@ -21,6 +21,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  maxitest
+  maxitest (~> 1.4)
   rack-test (~> 0.6)
   scorched-accept!

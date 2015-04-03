@@ -5,11 +5,11 @@ module Scorched
   module Accept
     DEFAULT_QVALUE = 1
 
-    class HeaderAccept
+    class AcceptHeader
       include Enumerable
 
-      def initialize(raw_str)
-        @raw_str = raw_str
+      def initialize(raw_str = nil)
+        @raw_str = (raw_str && not(raw_str =~ /^\s*$/)) ? raw_str : '*/*'
       end
 
       # Returns true if the given media type is acceptable.
@@ -43,7 +43,7 @@ module Scorched
       end
 
       def values
-        @values ||= HeaderAcceptTransform.new.apply(HeaderAcceptParser.new.parse(@raw_str))
+        @values ||= AcceptHeaderTransform.new.apply(AcceptHeaderParser.new.parse(@raw_str))
       end
 
       # Orders media ranges based on q-value, specificity, and the order they are defined
@@ -81,7 +81,7 @@ module Scorched
       end
     end
 
-    class HeaderAcceptParser < Parslet::Parser
+    class AcceptHeaderParser < Parslet::Parser
       root(:accept)
       rule(:accept) { (accept_element >> (ows >> str(",") >> accept_element).repeat) >> ows }
       rule(:accept_element) { ows >> (media_range >> (ows >> accept_params).maybe).as(:accept_element) }
@@ -102,7 +102,7 @@ module Scorched
       rule(:digit) { match["0-9"] }
     end
 
-    class HeaderAcceptTransform < Parslet::Transform
+    class AcceptHeaderTransform < Parslet::Transform
       rule(accept_element: subtree(:x)) do
         x[:media_type] = (x[:media_type].respond_to? :values) ? x[:media_type].values.join("/") : x[:media_type].to_s
         x[:parameters] = x[:parameters].reduce(&:merge) if x[:parameters].respond_to? :reduce

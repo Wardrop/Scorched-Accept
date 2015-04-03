@@ -1,4 +1,5 @@
-require_relative './accept/header_accept'
+require_relative './accept/accept_header'
+require_relative './accept/rack'
 
 module Scorched
   module Accept

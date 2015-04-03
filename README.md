@@ -5,8 +5,8 @@ correctly, or implement proper prioritisation of media ranges.
 Example
 -------
 ```ruby
-header_accept = HeaderAccept.new('text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
-header_accept.best_of('application/json', 'video/mp4')
+accept_header = AcceptHeader.new('text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+accept_header.best_of('application/json', 'video/mp4')
 ```
 
 Refer to specs and API documentation for more information.
