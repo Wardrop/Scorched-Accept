@@ -42,6 +42,8 @@ module Scorched
         accept_header.rank('text/x-markdown').must_equal long_header_ordered.index('text/*')
         accept_header.rank('video/mpeg').must_equal long_header_ordered.index('*/*')
         AcceptHeader.new(short_header).rank('video/mp4').must_equal nil
+        # Test inverting
+        accept_header.rank('text/x-markdown', true).must_equal long_header_ordered.reverse.index('text/*')
       end
 
       it "selects the most appropriate media type out of an array" do
@@ -71,6 +73,7 @@ module Scorched
 
       it "gracefully handles not being given an accept header string" do
         AcceptHeader.new.length.must_equal 1
+        AcceptHeader.new.acceptable?('text/html').must_equal true
         AcceptHeader.new(nil).length.must_equal 1
         AcceptHeader.new(' ').length.must_equal 1
       end

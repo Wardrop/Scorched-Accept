@@ -15,6 +15,10 @@ module Scorched
 
         lambda { AcceptHeaderParser.new.parse('text/plain; name = bob') }.must_raise Parslet::ParseFailed
       end
+
+      it "deals with a single media range correctly" do
+        AcceptHeaderTransform.new.apply(AcceptHeaderParser.new.parse('*/*')).must_equal [{:media_type=>"*/*"}]
+      end
     end
   end
 end

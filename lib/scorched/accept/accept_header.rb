@@ -18,11 +18,16 @@ module Scorched
       end
 
       # Ranks the supplied media type based on its appropriatness. Scores range from 0 (the most appropriate), to
-      # _n_-1, where _n_ is the number of media types defined in the accept header of the request. `nil` is returned if
+      # `n-1`, where `n` is the number of media types defined in the accept header of the request. If _invert_ is true,
+      # `n-1` is returned for the most appropriate match, and 0 for the least appropriate. `nil` is returned if
       # the media type is unacceptable.
-      def rank(media_type)
+      def rank(media_type, invert = false)
         match = matches(media_type).first
-        match && match.last
+        if(invert)
+          match && length - 1 - match.last
+        else
+          match && match.last
+        end
       end
 
       # Of the media types given, returns the most appropriate. If none are appropriate, returns nil. If all media types
@@ -83,7 +88,7 @@ module Scorched
 
     class AcceptHeaderParser < Parslet::Parser
       root(:accept)
-      rule(:accept) { (accept_element >> (ows >> str(",") >> accept_element).repeat) >> ows }
+      rule(:accept) { (accept_element >> (ows >> str(",") >> accept_element).repeat).as(:accept) >> ows }
       rule(:accept_element) { ows >> (media_range >> (ows >> accept_params).maybe).as(:accept_element) }
       rule(:media_range) { (str("*/*") | (token >> str('/') >> str('*').as(:subtype)) | (token >> str("/") >> token.as(:subtype))).as(:media_type) >> (ows >> str(";") >> ows >> parameter).repeat.as(:parameters) }
       rule(:accept_params) { str(";") >> ows >> str("q=") >> qvalue.as(:q) >> extension.repeat.as(:extensions) }
@@ -103,6 +108,9 @@ module Scorched
     end
 
     class AcceptHeaderTransform < Parslet::Transform
+      rule(accept: subtree(:x)) do
+        Array === x ? x : [x]
+      end
       rule(accept_element: subtree(:x)) do
         x[:media_type] = (x[:media_type].respond_to? :values) ? x[:media_type].values.join("/") : x[:media_type].to_s
         x[:parameters] = x[:parameters].reduce(&:merge) if x[:parameters].respond_to? :reduce
